@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileSearch,
+  Home,
 } from "lucide-react"
 import {
   Sidebar,
@@ -36,6 +37,12 @@ export function AppSidebar() {
 
   const routes = [
     {
+      label: "Inicio",
+      icon: Home,
+      href: "/",
+      active: pathname === "/",
+    },
+    {
       label: "Cargas",
       icon: Package,
       href: "/modules/cargas",
@@ -46,12 +53,6 @@ export function AppSidebar() {
       icon: Truck,
       href: "/modules/flota",
       active: pathname === "/modules/flota",
-    },
-    {
-      label: "Reputación",
-      icon: Star,
-      href: "/reputacion",
-      active: pathname === "/reputacion",
     },
   ]
 
@@ -99,7 +100,7 @@ export function AppSidebar() {
               <Users className="h-4 w-4 text-white" />
             </div>
             <div>
-              <p className="text-sm font-medium">Juan Ortega</p>
+              <p className="text-sm font-medium">Chofer: Juan Ortega</p>
               <p className="text-xs opacity-60">juanortega321@gmail.com</p>
             </div>
           </div>

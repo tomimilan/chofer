@@ -47,6 +47,12 @@ export function AppSidebar() {
       href: "/modules/flota",
       active: pathname === "/modules/flota",
     },
+    {
+      label: "Reputación",
+      icon: Star,
+      href: "/reputacion",
+      active: pathname === "/reputacion",
+    },
   ]
 
   return (

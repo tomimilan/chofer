@@ -267,6 +267,57 @@ export function EditTruckModal({ open, onOpenChange, vehicle }: EditTruckModalPr
             </div>
           </div>
 
+          <div className="border rounded-lg p-4 bg-gray-50">
+            <h3 className="font-semibold mb-2 text-base">Documentos Requeridos</h3>
+            <p className="text-sm text-gray-600 mb-4">Sube los archivos de los documentos requeridos. Asegúrate de que sean claros y legibles.</p>
+            <div className="grid grid-cols-1 gap-4">
+              {/* Cédula del camión */}
+              <div className="border p-4 rounded-lg bg-white">
+                <p className="font-medium mb-1">Cédula del camión <span className="text-red-500">*</span></p>
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#00334a]/10 file:text-[#00334a] hover:file:bg-[#00334a]/20"
+                  required
+                />
+                <p className="text-xs text-gray-400 mt-1">JPG, PNG o PDF (máx. 5MB)</p>
+              </div>
+              {/* RTO */}
+              <div className="border p-4 rounded-lg bg-white">
+                <p className="font-medium mb-1">Revisión Técnica Obligatoria (RTO) <span className="text-red-500">*</span></p>
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#00334a]/10 file:text-[#00334a] hover:file:bg-[#00334a]/20"
+                  required
+                />
+                <p className="text-xs text-gray-400 mt-1">JPG, PNG o PDF (máx. 5MB)</p>
+              </div>
+              {/* Certificado de cobertura */}
+              <div className="border p-4 rounded-lg bg-white">
+                <p className="font-medium mb-1">Certificado de cobertura <span className="text-red-500">*</span></p>
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#00334a]/10 file:text-[#00334a] hover:file:bg-[#00334a]/20"
+                  required
+                />
+                <p className="text-xs text-gray-400 mt-1">JPG, PNG o PDF (máx. 5MB)</p>
+              </div>
+              {/* Certificado de cumplimiento fiscal de ATM */}
+              <div className="border p-4 rounded-lg bg-white">
+                <p className="font-medium mb-1">Certificado de cumplimiento fiscal de ATM <span className="text-red-500">*</span></p>
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#00334a]/10 file:text-[#00334a] hover:file:bg-[#00334a]/20"
+                  required
+                />
+                <p className="text-xs text-gray-400 mt-1">JPG, PNG o PDF (máx. 5MB)</p>
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar

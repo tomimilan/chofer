@@ -228,6 +228,45 @@ export function ViewTruckModal({ open, onOpenChange, vehicle }: ViewTruckModalPr
             </div>
           </div>
 
+          <div className="border rounded-lg p-4 bg-gray-50">
+            <h3 className="font-semibold mb-2 text-base">Documentos Requeridos</h3>
+            <p className="text-sm text-gray-600 mb-4">Documentos cargados para este camión.</p>
+            <div className="grid grid-cols-1 gap-4">
+              {/* Cédula del camión */}
+              <div className="border p-4 rounded-lg bg-white">
+                <p className="font-medium mb-1">Cédula del camión</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">Archivo subido</span>
+                  <Button size="sm" variant="outline" className="ml-auto" disabled>Ver</Button>
+                </div>
+              </div>
+              {/* RTO */}
+              <div className="border p-4 rounded-lg bg-white">
+                <p className="font-medium mb-1">Revisión Técnica Obligatoria (RTO)</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">Archivo subido</span>
+                  <Button size="sm" variant="outline" className="ml-auto" disabled>Ver</Button>
+                </div>
+              </div>
+              {/* Certificado de cobertura */}
+              <div className="border p-4 rounded-lg bg-white">
+                <p className="font-medium mb-1">Certificado de cobertura</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">Archivo subido</span>
+                  <Button size="sm" variant="outline" className="ml-auto" disabled>Ver</Button>
+                </div>
+              </div>
+              {/* Certificado de cumplimiento fiscal de ATM */}
+              <div className="border p-4 rounded-lg bg-white">
+                <p className="font-medium mb-1">Certificado de cumplimiento fiscal de ATM</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">Archivo subido</span>
+                  <Button size="sm" variant="outline" className="ml-auto" disabled>Ver</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cerrar

@@ -11,7 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Eye, MoreHorizontal, Upload, FileText } from "lucide-react"
+import { Eye, MoreHorizontal, Upload, FileText, Hash, User, Calendar, Shield, FileCheck, FileX } from "lucide-react"
 import { SortableHeader } from "@/components/ui/sortable-header"
 import { ViewDriverDocumentsModal } from "@/components/view-driver-documents-modal"
 import { UploadDocumentModal } from "@/components/upload-document-modal"
@@ -89,12 +89,12 @@ export function DriverDocumentsTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Nombre</TableHead>
-            <TableHead>Licencia</TableHead>
-            <TableHead>ART</TableHead>
-            <TableHead>Psicofísico</TableHead>
-            <TableHead>Documentación</TableHead>
+            <SortableHeader label="ID" sortKey="id" icon={Hash} sortConfig={sortConfig} onSort={setSortConfig} />
+            <SortableHeader label="Nombre" sortKey="nombre" icon={User} sortConfig={sortConfig} onSort={setSortConfig} />
+            <SortableHeader label="Licencia" sortKey="licencia.numero" icon={FileText} sortConfig={sortConfig} onSort={setSortConfig} />
+            <SortableHeader label="ART" sortKey="art.numero" icon={Shield} sortConfig={sortConfig} onSort={setSortConfig} />
+            <SortableHeader label="Psicofísico" sortKey="psicofisico.numero" icon={FileCheck} sortConfig={sortConfig} onSort={setSortConfig} />
+            <SortableHeader label="Documentación" sortKey="documentacion.dni" icon={FileX} sortConfig={sortConfig} onSort={setSortConfig} />
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>

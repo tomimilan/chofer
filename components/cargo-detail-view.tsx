@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Eye, TruckIcon, UserIcon, ContainerIcon, Pencil, MoreHorizontal, BadgeCheck, PackageIcon, DollarSign, Calendar, MapPin, FileText, Hash, Ship, Landmark, Clock, BuildingIcon, LockIcon, CheckCircle, ArrowUpDownIcon, PaperclipIcon, Trash2, Upload, ArrowLeft, Users } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -48,7 +48,7 @@ interface Adjunto {
 
 export function CargoDetailView({ cargoId }: CargoDetailViewProps) {
   const [modalViaje, setModalViaje] = useState<Viaje | null>(null)
-  const [modalTipo, setModalTipo] = useState<null | "transporte" | "chofer" | "contenedor" | "estado" | "empresa">(null)
+  const [modalTipo, setModalTipo] = useState<null | "transporte" | "chofer" | "contenedor" | "estado" | "empresa" | "baja">(null)
   const [contenedorForm, setContenedorForm] = useState({ numero: "", precinto: "" })
   const [empresaForm, setEmpresaForm] = useState({ empresa: "", ata: "" })
   const [transporteForm, setTransporteForm] = useState({
@@ -149,7 +149,7 @@ export function CargoDetailView({ cargoId }: CargoDetailViewProps) {
       {
         id: "VJ001",
         numero: "01",
-        estado: "Asignado",
+        estado: "Por aprobar",
         fechaInicio: "2023-07-12",
         fechaFin: "2023-07-13",
         empresa: { id: "EMP001", nombre: "Juan Ortega" },
@@ -805,8 +805,6 @@ export function CargoDetailView({ cargoId }: CargoDetailViewProps) {
                           ? "inline-block rounded-full bg-amber-50 text-amber-700 px-3 py-1 text-xs font-semibold"
                           : viaje.estado === "Pendiente"
                           ? "inline-block rounded-full bg-orange-50 text-orange-700 px-3 py-1 text-xs font-semibold"
-                          : viaje.estado === "Asignado"
-                          ? "inline-block rounded-full bg-green-50 text-green-700 px-3 py-1 text-xs font-semibold"
                           : "inline-block rounded-full bg-slate-50 text-slate-700 px-3 py-1 text-xs font-semibold"
                       }>
                         {viaje.estado}
@@ -828,6 +826,11 @@ export function CargoDetailView({ cargoId }: CargoDetailViewProps) {
                             <PaperclipIcon className="mr-2 h-4 w-4" />
                             Gestionar adjuntos
                           </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-red-600 focus:bg-red-50" onClick={() => { setModalViaje(viaje); setModalTipo('baja'); }}>
+                            <Trash2 className="mr-2 h-4 w-4 text-red-600" />
+                            Dar de Baja
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -842,221 +845,238 @@ export function CargoDetailView({ cargoId }: CargoDetailViewProps) {
       {/* Modales de edición (simples, solo para ejemplo visual) */}
       {modalViaje && modalTipo && (
         <Dialog open={!!modalViaje} onOpenChange={(open) => { if (!open) { setModalViaje(null); setModalTipo(null); setErrors({}) } }}>
-          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-            {modalTipo === "contenedor" && (
+          <DialogContent className={modalTipo === 'baja' ? 'max-w-md' : 'sm:max-w-[500px] max-h-[90vh] overflow-y-auto'}>
+            {modalTipo === 'baja' ? (
               <>
                 <DialogHeader>
-                  <DialogTitle className="text-lg font-semibold">Asignar Contenedor y Precinto</DialogTitle>
-                  <DialogDescription>Ingrese el número de contenedor y el precinto para el viaje {modalViaje.numero}.</DialogDescription>
+                  <DialogTitle>¿Estás seguro?</DialogTitle>
+                  <DialogDescription>
+                    Esta acción cancelará el viaje <b>{modalViaje.numero}</b>. El registro cambiará su estado a cancelado.
+                  </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleAsignarContenedor} className="space-y-4 pt-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="numeroContenedor">N° Contenedor</Label>
-                      <Input id="numeroContenedor" value={contenedorForm.numero} onChange={e => setContenedorForm(f => ({ ...f, numero: e.target.value }))} placeholder="Ej: CONT1234567" />
-                      {errors.numero && <p className="text-sm text-red-500">{errors.numero}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="precinto">Precinto</Label>
-                      <Input id="precinto" value={contenedorForm.precinto} onChange={e => setContenedorForm(f => ({ ...f, precinto: e.target.value }))} placeholder="Ej: PRC-98765" />
-                      {errors.precinto && <p className="text-sm text-red-500">{errors.precinto}</p>}
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-2 pt-4">
-                    <Button type="button" variant="outline" onClick={() => { setModalViaje(null); setModalTipo(null); setErrors({}) }}>Cancelar</Button>
-                    <Button type="submit" className="bg-[#00334a] hover:bg-[#004a6b]">Guardar</Button>
-                  </div>
-                </form>
+                <div className="flex justify-end gap-3 mt-6">
+                  <Button variant="outline" onClick={() => { setModalViaje(null); setModalTipo(null); setErrors({}) }}>Cancelar</Button>
+                  <Button onClick={() => { setModalViaje(null); setModalTipo(null); setErrors({}) }}>Dar de Baja</Button>
+                </div>
               </>
-            )}
-            {modalTipo === "empresa" && (
+            ) : (
               <>
-                <DialogHeader>
-                  <DialogTitle className="text-lg font-semibold">Asignar Empresa y ATA</DialogTitle>
-                  <DialogDescription>Seleccione la empresa y el ATA para el viaje {modalViaje.numero}.</DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleAsignarEmpresa} className="space-y-4 pt-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="empresa">Empresa</Label>
-                      <Select value={empresaForm.empresa} onValueChange={v => setEmpresaForm(f => ({ ...f, empresa: v }))}>
-                        <SelectTrigger className={errors.empresa ? "border-red-500" : ""}>
-                          <SelectValue placeholder="Seleccionar empresa" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Transportes Rápidos S.A.">Transportes Rápidos S.A.</SelectItem>
-                          <SelectItem value="Logística del Sur">Logística del Sur</SelectItem>
-                          <SelectItem value="Transportes Andinos">Transportes Andinos</SelectItem>
-                          <SelectItem value="Carga Express">Carga Express</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.empresa && <p className="text-sm text-red-500">{errors.empresa}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="ata">ATA</Label>
-                      <Select value={empresaForm.ata} onValueChange={v => setEmpresaForm(f => ({ ...f, ata: v }))}>
-                        <SelectTrigger className={errors.ata ? "border-red-500" : ""}>
-                          <SelectValue placeholder="Seleccionar ATA" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ATA-001">ATA-001</SelectItem>
-                          <SelectItem value="ATA-002">ATA-002</SelectItem>
-                          <SelectItem value="ATA-003">ATA-003</SelectItem>
-                          <SelectItem value="ATA-004">ATA-004</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.ata && <p className="text-sm text-red-500">{errors.ata}</p>}
-                    </div>
+                {modalTipo === "contenedor" && (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle className="text-lg font-semibold">Asignar Contenedor y Precinto</DialogTitle>
+                      <DialogDescription>Ingrese el número de contenedor y el precinto para el viaje {modalViaje.numero}.</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleAsignarContenedor} className="space-y-4 pt-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="numeroContenedor">N° Contenedor</Label>
+                          <Input id="numeroContenedor" value={contenedorForm.numero} onChange={e => setContenedorForm(f => ({ ...f, numero: e.target.value }))} placeholder="Ej: CONT1234567" />
+                          {errors.numero && <p className="text-sm text-red-500">{errors.numero}</p>}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="precinto">Precinto</Label>
+                          <Input id="precinto" value={contenedorForm.precinto} onChange={e => setContenedorForm(f => ({ ...f, precinto: e.target.value }))} placeholder="Ej: PRC-98765" />
+                          {errors.precinto && <p className="text-sm text-red-500">{errors.precinto}</p>}
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-4">
+                        <Button type="button" variant="outline" onClick={() => { setModalViaje(null); setModalTipo(null); setErrors({}) }}>Cancelar</Button>
+                        <Button type="submit" className="bg-[#00334a] hover:bg-[#004a6b]">Guardar</Button>
+                      </div>
+                    </form>
+                  </>
+                )}
+                {modalTipo === "empresa" && (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle className="text-lg font-semibold">Asignar Empresa y ATA</DialogTitle>
+                      <DialogDescription>Seleccione la empresa y el ATA para el viaje {modalViaje.numero}.</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleAsignarEmpresa} className="space-y-4 pt-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="empresa">Empresa</Label>
+                          <Select value={empresaForm.empresa} onValueChange={v => setEmpresaForm(f => ({ ...f, empresa: v }))}>
+                            <SelectTrigger className={errors.empresa ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Seleccionar empresa" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Transportes Rápidos S.A.">Transportes Rápidos S.A.</SelectItem>
+                              <SelectItem value="Logística del Sur">Logística del Sur</SelectItem>
+                              <SelectItem value="Transportes Andinos">Transportes Andinos</SelectItem>
+                              <SelectItem value="Carga Express">Carga Express</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.empresa && <p className="text-sm text-red-500">{errors.empresa}</p>}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="ata">ATA</Label>
+                          <Select value={empresaForm.ata} onValueChange={v => setEmpresaForm(f => ({ ...f, ata: v }))}>
+                            <SelectTrigger className={errors.ata ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Seleccionar ATA" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="ATA-001">ATA-001</SelectItem>
+                              <SelectItem value="ATA-002">ATA-002</SelectItem>
+                              <SelectItem value="ATA-003">ATA-003</SelectItem>
+                              <SelectItem value="ATA-004">ATA-004</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.ata && <p className="text-sm text-red-500">{errors.ata}</p>}
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-4">
+                        <Button type="button" variant="outline" onClick={() => { setModalViaje(null); setModalTipo(null); setErrors({}) }}>Cancelar</Button>
+                        <Button type="submit" className="bg-[#00334a] hover:bg-[#004a6b]">Guardar</Button>
+                      </div>
+                    </form>
+                  </>
+                )}
+                {modalTipo === "chofer" && (
+                  <div>
+                    <DialogHeader>
+                      <DialogTitle className="text-lg font-semibold">Asignar Chofer al Viaje {modalViaje.numero}</DialogTitle>
+                      <DialogDescription>Aquí iría el formulario para asignar chofer.</DialogDescription>
+                    </DialogHeader>
+                    <Button onClick={() => { setModalViaje(null); setModalTipo(null) }} className="mt-4">Cerrar</Button>
                   </div>
-                  <div className="flex justify-end gap-2 pt-4">
-                    <Button type="button" variant="outline" onClick={() => { setModalViaje(null); setModalTipo(null); setErrors({}) }}>Cancelar</Button>
-                    <Button type="submit" className="bg-[#00334a] hover:bg-[#004a6b]">Guardar</Button>
-                  </div>
-                </form>
-              </>
-            )}
-            {modalTipo === "chofer" && (
-              <div>
-                <DialogHeader>
-                  <DialogTitle className="text-lg font-semibold">Asignar Chofer al Viaje {modalViaje.numero}</DialogTitle>
-                  <DialogDescription>Aquí iría el formulario para asignar chofer.</DialogDescription>
-                </DialogHeader>
-                <Button onClick={() => { setModalViaje(null); setModalTipo(null) }} className="mt-4">Cerrar</Button>
-              </div>
-            )}
-            {modalTipo === "estado" && (
-              <>
-                <DialogHeader>
-                  <DialogTitle className="text-lg font-semibold">Cambiar Estado</DialogTitle>
-                  <DialogDescription>Seleccione el nuevo estado para el viaje {modalViaje.numero}.</DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleCambiarEstado} className="space-y-4 pt-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="estado">Estado</Label>
-                    <Select value={estadoForm.estado} onValueChange={v => setEstadoForm({ estado: v })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar estado" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Pendiente">Pendiente</SelectItem>
-                        <SelectItem value="En Progreso">En Progreso</SelectItem>
-                        <SelectItem value="Completado">Completado</SelectItem>
-                        <SelectItem value="Cancelado">Cancelado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex justify-end gap-2 pt-4">
-                    <Button type="button" variant="outline" onClick={() => { setModalViaje(null); setModalTipo(null); setErrors({}) }}>Cancelar</Button>
-                    <Button type="submit" className="bg-[#00334a] hover:bg-[#004a6b]">Guardar</Button>
-                  </div>
-                </form>
-              </>
-            )}
-            {modalTipo === "transporte" && (
-              <>
-                <DialogHeader>
-                  <DialogTitle className="text-lg font-semibold">Tomar Viaje</DialogTitle>
-                  <DialogDescription>Complete los datos de transporte para el viaje {modalViaje.numero}.</DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleAsignarTransporte} className="space-y-4 pt-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="empresa">Empresa</Label>
-                      <Select value={transporteForm.empresa} onValueChange={v => setTransporteForm(f => ({ ...f, empresa: v }))}>
-                        <SelectTrigger className={errors.empresa ? "border-red-500" : ""}>
-                          <SelectValue placeholder="Seleccionar empresa" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Transportes Rápidos S.A.">Transportes Rápidos S.A.</SelectItem>
-                          <SelectItem value="Logística del Sur">Logística del Sur</SelectItem>
-                          <SelectItem value="Transportes Andinos">Transportes Andinos</SelectItem>
-                          <SelectItem value="Carga Express">Carga Express</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.empresa && <p className="text-sm text-red-500">{errors.empresa}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="ata">ATA</Label>
-                      <Select value={transporteForm.ata} onValueChange={v => setTransporteForm(f => ({ ...f, ata: v }))}>
-                        <SelectTrigger className={errors.ata ? "border-red-500" : ""}>
-                          <SelectValue placeholder="Seleccionar ATA" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ATA-001">ATA-001</SelectItem>
-                          <SelectItem value="ATA-002">ATA-002</SelectItem>
-                          <SelectItem value="ATA-003">ATA-003</SelectItem>
-                          <SelectItem value="ATA-004">ATA-004</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.ata && <p className="text-sm text-red-500">{errors.ata}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="camion">Camión</Label>
-                      <Select value={transporteForm.camion} onValueChange={v => setTransporteForm(f => ({ ...f, camion: v }))}>
-                        <SelectTrigger className={errors.camion ? "border-red-500" : ""}>
-                          <SelectValue placeholder="Seleccionar camión" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ABC123">ABC123</SelectItem>
-                          <SelectItem value="DEF456">DEF456</SelectItem>
-                          <SelectItem value="GHI789">GHI789</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.camion && <p className="text-sm text-red-500">{errors.camion}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="chofer">Chofer</Label>
-                      <Select value={transporteForm.chofer} onValueChange={v => setTransporteForm(f => ({ ...f, chofer: v }))}>
-                        <SelectTrigger className={errors.chofer ? "border-red-500" : ""}>
-                          <SelectValue placeholder="Seleccionar chofer" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Carlos Rodríguez">Carlos Rodríguez</SelectItem>
-                          <SelectItem value="María González">María González</SelectItem>
-                          <SelectItem value="Juan Pérez">Juan Pérez</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.chofer && <p className="text-sm text-red-500">{errors.chofer}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="acoplado">Acoplado</Label>
-                      <Select value={transporteForm.acoplado} onValueChange={v => setTransporteForm(f => ({ ...f, acoplado: v }))}>
-                        <SelectTrigger className={errors.acoplado ? "border-red-500" : ""}>
-                          <SelectValue placeholder="Seleccionar acoplado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ACOP-001">ACOP-001</SelectItem>
-                          <SelectItem value="ACOP-002">ACOP-002</SelectItem>
-                          <SelectItem value="ACOP-003">ACOP-003</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.acoplado && <p className="text-sm text-red-500">{errors.acoplado}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="crt">CRT</Label>
-                      <Input id="crt" value={transporteForm.crt} onChange={e => setTransporteForm(f => ({ ...f, crt: e.target.value }))} placeholder="Ej: CRT-12345" />
-                      {errors.crt && <p className="text-sm text-red-500">{errors.crt}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="empresaCrt">Empresa CRT</Label>
-                      <Select value={transporteForm.empresaCrt} onValueChange={v => setTransporteForm(f => ({ ...f, empresaCrt: v }))}>
-                        <SelectTrigger className={errors.empresaCrt ? "border-red-500" : ""}>
-                          <SelectValue placeholder="Seleccionar empresa CRT" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="CRT Express">CRT Express</SelectItem>
-                          <SelectItem value="CRT Cargo">CRT Cargo</SelectItem>
-                          <SelectItem value="CRT Andina">CRT Andina</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.empresaCrt && <p className="text-sm text-red-500">{errors.empresaCrt}</p>}
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-2 pt-4">
-                    <Button type="button" variant="outline" onClick={() => { setModalViaje(null); setModalTipo(null); setErrors({}) }}>Cancelar</Button>
-                    <Button type="submit" className="bg-[#00334a] hover:bg-[#004a6b]">Guardar</Button>
-                  </div>
-                </form>
+                )}
+                {modalTipo === "estado" && (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle className="text-lg font-semibold">Cambiar Estado</DialogTitle>
+                      <DialogDescription>Seleccione el nuevo estado para el viaje {modalViaje.numero}.</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleCambiarEstado} className="space-y-4 pt-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="estado">Estado</Label>
+                        <Select value={estadoForm.estado} onValueChange={v => setEstadoForm({ estado: v })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar estado" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Pendiente">Pendiente</SelectItem>
+                            <SelectItem value="En Progreso">En Progreso</SelectItem>
+                            <SelectItem value="Completado">Completado</SelectItem>
+                            <SelectItem value="Cancelado">Cancelado</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-4">
+                        <Button type="button" variant="outline" onClick={() => { setModalViaje(null); setModalTipo(null); setErrors({}) }}>Cancelar</Button>
+                        <Button type="submit" className="bg-[#00334a] hover:bg-[#004a6b]">Guardar</Button>
+                      </div>
+                    </form>
+                  </>
+                )}
+                {modalTipo === "transporte" && (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle className="text-lg font-semibold">Tomar Viaje</DialogTitle>
+                      <DialogDescription>Complete los datos de transporte para el viaje {modalViaje.numero}.</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleAsignarTransporte} className="space-y-4 pt-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="empresa">Empresa</Label>
+                          <Select value={transporteForm.empresa} onValueChange={v => setTransporteForm(f => ({ ...f, empresa: v }))}>
+                            <SelectTrigger className={errors.empresa ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Seleccionar empresa" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Transportes Rápidos S.A.">Transportes Rápidos S.A.</SelectItem>
+                              <SelectItem value="Logística del Sur">Logística del Sur</SelectItem>
+                              <SelectItem value="Transportes Andinos">Transportes Andinos</SelectItem>
+                              <SelectItem value="Carga Express">Carga Express</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.empresa && <p className="text-sm text-red-500">{errors.empresa}</p>}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="ata">ATA</Label>
+                          <Select value={transporteForm.ata} onValueChange={v => setTransporteForm(f => ({ ...f, ata: v }))}>
+                            <SelectTrigger className={errors.ata ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Seleccionar ATA" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="ATA-001">ATA-001</SelectItem>
+                              <SelectItem value="ATA-002">ATA-002</SelectItem>
+                              <SelectItem value="ATA-003">ATA-003</SelectItem>
+                              <SelectItem value="ATA-004">ATA-004</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.ata && <p className="text-sm text-red-500">{errors.ata}</p>}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="camion">Camión</Label>
+                          <Select value={transporteForm.camion} onValueChange={v => setTransporteForm(f => ({ ...f, camion: v }))}>
+                            <SelectTrigger className={errors.camion ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Seleccionar camión" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="ABC123">ABC123</SelectItem>
+                              <SelectItem value="DEF456">DEF456</SelectItem>
+                              <SelectItem value="GHI789">GHI789</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.camion && <p className="text-sm text-red-500">{errors.camion}</p>}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="chofer">Chofer</Label>
+                          <Select value={transporteForm.chofer} onValueChange={v => setTransporteForm(f => ({ ...f, chofer: v }))}>
+                            <SelectTrigger className={errors.chofer ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Seleccionar chofer" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Carlos Rodríguez">Carlos Rodríguez</SelectItem>
+                              <SelectItem value="María González">María González</SelectItem>
+                              <SelectItem value="Juan Pérez">Juan Pérez</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.chofer && <p className="text-sm text-red-500">{errors.chofer}</p>}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="acoplado">Acoplado</Label>
+                          <Select value={transporteForm.acoplado} onValueChange={v => setTransporteForm(f => ({ ...f, acoplado: v }))}>
+                            <SelectTrigger className={errors.acoplado ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Seleccionar acoplado" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="ACOP-001">ACOP-001</SelectItem>
+                              <SelectItem value="ACOP-002">ACOP-002</SelectItem>
+                              <SelectItem value="ACOP-003">ACOP-003</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.acoplado && <p className="text-sm text-red-500">{errors.acoplado}</p>}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="crt">CRT</Label>
+                          <Input id="crt" value={transporteForm.crt} onChange={e => setTransporteForm(f => ({ ...f, crt: e.target.value }))} placeholder="Ej: CRT-12345" />
+                          {errors.crt && <p className="text-sm text-red-500">{errors.crt}</p>}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="empresaCrt">Empresa CRT</Label>
+                          <Select value={transporteForm.empresaCrt} onValueChange={v => setTransporteForm(f => ({ ...f, empresaCrt: v }))}>
+                            <SelectTrigger className={errors.empresaCrt ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Seleccionar empresa CRT" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="CRT Express">CRT Express</SelectItem>
+                              <SelectItem value="CRT Cargo">CRT Cargo</SelectItem>
+                              <SelectItem value="CRT Andina">CRT Andina</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.empresaCrt && <p className="text-sm text-red-500">{errors.empresaCrt}</p>}
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-4">
+                        <Button type="button" variant="outline" onClick={() => { setModalViaje(null); setModalTipo(null); setErrors({}) }}>Cancelar</Button>
+                        <Button type="submit" className="bg-[#00334a] hover:bg-[#004a6b]">Guardar</Button>
+                      </div>
+                    </form>
+                  </>
+                )}
               </>
             )}
           </DialogContent>
